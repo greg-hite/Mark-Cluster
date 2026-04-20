@@ -1,6 +1,491 @@
 <!DOCTYPE html>
-<html>
-  <body>
-    <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTkEyf_jCfjj04SOD9kCRiwfAToxeg88UZGosSoUd7vx4_68ZgI_XjGVFs7JTnzdCh8luARmqQ6QWmB/pubhtml?gid=0&amp;single=true&amp;widget=true&amp;headers=false" width="100%" height="600"></iframe>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mark-Cluster — 3D Printed Pi Desk Cluster</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pi: #e84040;
+      --pi-dim: #c93333;
+      --bg: #0e0e0e;
+      --bg2: #161616;
+      --bg3: #1e1e1e;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.14);
+      --text: #f0f0f0;
+      --text2: #9a9a9a;
+      --text3: #5e5e5e;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 52px;
+      background: rgba(14,14,14,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 0.5px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--pi); }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text2);
+      text-decoration: none;
+      letter-spacing: .5px;
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 5rem 2rem 3.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 39px, var(--border) 39px, var(--border) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, var(--border) 39px, var(--border) 40px);
+      opacity: .5;
+      pointer-events: none;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg2);
+      border: 0.5px solid var(--border2);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text2);
+      margin-bottom: 1.75rem;
+      position: relative;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--pi);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    h1 {
+      font-family: var(--mono);
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      font-weight: 700;
+      letter-spacing: -2px;
+      color: var(--text);
+      line-height: 1.0;
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+    h1 span { color: var(--pi); }
+
+    .tagline {
+      font-family: var(--sans);
+      font-size: 1.05rem;
+      color: var(--text2);
+      font-weight: 300;
+      max-width: 500px;
+      margin: 0 auto 2.25rem;
+      line-height: 1.65;
+      position: relative;
+    }
+
+    .btns {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 3.5rem;
+      position: relative;
+    }
+    .btn {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 11px 22px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .15s;
+      display: inline-block;
+    }
+    .btn-primary { background: var(--pi); color: #fff; border: 1.5px solid var(--pi); }
+    .btn-primary:hover { background: var(--pi-dim); border-color: var(--pi-dim); }
+    .btn-ghost { background: transparent; color: var(--text); border: 0.5px solid var(--border2); }
+    .btn-ghost:hover { background: var(--bg3); }
+
+    /* ── STATS ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      max-width: 540px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .stat {
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat-val {
+      font-family: var(--mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .stat-val span { color: var(--pi); }
+    .stat-label {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      padding: 3rem 2rem;
+      border-top: 0.5px solid var(--border);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--pi);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: .6rem;
+    }
+    .section-title {
+      font-family: var(--mono);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: .6rem;
+    }
+    .section-desc {
+      font-family: var(--sans);
+      font-size: .95rem;
+      color: var(--text2);
+      line-height: 1.65;
+      max-width: 580px;
+      margin-bottom: 1.75rem;
+    }
+
+    /* ── FEATURES ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+    }
+    .feat {
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      transition: border-color .15s;
+    }
+    .feat:hover { border-color: var(--border2); }
+    .feat-icon { font-size: 22px; margin-bottom: .6rem; }
+    .feat-name {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+    .feat-desc {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.55;
+    }
+
+    /* ── SHEET ── */
+    .sheet-wrap {
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--bg2);
+    }
+    .sheet-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--bg3);
+      border-bottom: 0.5px solid var(--border);
+    }
+    .sheet-dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 4px;
+    }
+    .sheet-dots span:nth-child(1) { background: #ff5f57; }
+    .sheet-dots span:nth-child(2) { background: #febc2e; }
+    .sheet-dots span:nth-child(3) { background: #28c840; }
+    .sheet-title-bar {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text3);
+      flex: 1;
+      text-align: center;
+    }
+    .sheet-wrap iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+      display: block;
+      background: #fff;
+    }
+
+    /* ── GETTING STARTED ── */
+    .steps { display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
+    .step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+    }
+    .step-num {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pi);
+      min-width: 22px;
+      padding-top: 2px;
+    }
+    .step-body {}
+    .step-title {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+    .step-desc {
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.55;
+    }
+    code {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--bg3);
+      border: 0.5px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--pi);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      border-top: 0.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-txt {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text3);
+    }
+    .footer-link {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--pi);
+      text-decoration: none;
+    }
+    .footer-link:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      nav { padding: 0 1rem; }
+      .nav-links { gap: 1rem; }
+      .hero { padding: 3.5rem 1.25rem 2.5rem; }
+      .section { padding: 2.5rem 1.25rem; }
+      footer { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="#">Mark-<span>Cluster</span></a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#bom">BOM</a>
+      <a href="#start">Get started</a>
+      <a href="https://github.com" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="chip"><span class="dot"></span>active build</div>
+    <h1>Mark-<span>Cluster</span></h1>
+    <p class="tagline">A fully 3D-printed desk enclosure for a multi-node Raspberry Pi cluster — designed for Mark, built to last.</p>
+    <div class="btns">
+      <a href="https://github.com" class="btn btn-primary" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="#bom" class="btn btn-ghost">Bill of Materials ↓</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val"><span>4</span></div><div class="stat-label">Pi nodes</div></div>
+      <div class="stat"><div class="stat-val"><span>3D</span></div><div class="stat-label">Printed</div></div>
+      <div class="stat"><div class="stat-val"><span>1U</span></div><div class="stat-label">Desk form</div></div>
+      <div class="stat"><div class="stat-val"><span>∞</span></div><div class="stat-label">Uptime goal</div></div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="section" id="features">
+    <div class="section-label">What it is</div>
+    <div class="section-title">A Pi cluster that sits on your desk</div>
+    <p class="section-desc">Mark-Cluster is an open-source 3D print project — print the parts, slot in your Raspberry Pis, and you've got a tidy, stackable mini-datacenter for your home lab or office.</p>
+    <div class="features">
+      <div class="feat">
+        <div class="feat-icon">🖨️</div>
+        <div class="feat-name">Print-ready STLs</div>
+        <div class="feat-desc">All parts exported and tested on FDM printers.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🔌</div>
+        <div class="feat-name">Cable management</div>
+        <div class="feat-desc">Built-in channels keep USB and ethernet tidy.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🌬️</div>
+        <div class="feat-name">Airflow design</div>
+        <div class="feat-desc">Vented sides and fan mount keep temps low.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">📐</div>
+        <div class="feat-name">Modular bays</div>
+        <div class="feat-desc">Add or remove Pi nodes without reprinting.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOM -->
+  <section class="section" id="bom">
+    <div class="section-label">Bill of materials</div>
+    <div class="section-title">Parts & components</div>
+    <p class="section-desc">Everything you need to build your own Mark-Cluster, tracked live in the spreadsheet below.</p>
+    <div class="sheet-wrap">
+      <div class="sheet-bar">
+        <div class="sheet-dots"><span></span><span></span><span></span></div>
+        <div class="sheet-title-bar">mark-cluster — bill of materials</div>
+      </div>
+      <iframe
+        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTkEyf_jCfjj04SOD9kCRiwfAToxeg88UZGosSoUd7vx4_68ZgI_XjGVFs7JTnzdCh8luARmqQ6QWmB/pubhtml?gid=0&single=true&widget=true&headers=false"
+        title="Bill of Materials"
+        loading="lazy"
+      ></iframe>
+    </div>
+  </section>
+
+  <!-- GETTING STARTED -->
+  <section class="section" id="start">
+    <div class="section-label">Getting started</div>
+    <div class="section-title">Build your own</div>
+    <p class="section-desc">Four steps from zero to a running cluster on your desk.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Clone the repo</div>
+          <div class="step-desc">Run <code>git clone https://github.com/you/mark-cluster</code> to grab the STL files and config.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Print the parts</div>
+          <div class="step-desc">Open the STLs in your slicer. Recommended settings: 0.2mm layer height, 20% infill, PLA or PETG.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Gather components</div>
+          <div class="step-desc">Order everything listed in the Bill of Materials above. Most parts ship from the usual suppliers.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">Assemble & flash</div>
+          <div class="step-desc">Follow the assembly guide in the repo README. Flash Raspberry Pi OS on each node and you're running.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-txt">Mark-Cluster — open hardware project</span>
+    <a href="https://github.com" class="footer-link" target="_blank" rel="noopener">github.com/mark-cluster ↗</a>
+  </footer>
+
+</body>
 </html>
